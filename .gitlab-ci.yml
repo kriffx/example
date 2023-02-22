@@ -1,0 +1,31 @@
+image: registry.worten.net/docker/base-builder
+
+stages:
+  - Build
+  - Tests
+
+variables:
+  BUILD_IMAGE: "$CI_REGISTRY_IMAGE:$CI_PIPELINE_ID"
+  BUILD_LATEST: "$CI_REGISTRY_IMAGE:latest"
+
+build:
+  stage: Build
+  script:
+    - echo "*** Logging into Docker Registry" && docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.worten.net
+    - docker build --build-arg PROJECT_NAME=$PROJECT_NAME -t $BUILD_IMAGE -t $BUILD_LATEST .
+    - docker push $BUILD_IMAGE
+    - docker push $BUILD_LATEST
+    - echo "$CI_PIPELINE_TRIGGERED"
+  except:
+    - schedules
+
+tests:
+  stage: Tests
+  image: $BUILD_LATEST
+  artifacts:
+    when: always
+    paths:
+      - ./
+    expire_in: 10 minutes
+  script:
+    - robot --listener listeners/KitsuListener.py -d results tests/
