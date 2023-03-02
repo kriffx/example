@@ -7,7 +7,8 @@ Library    SeleniumLibrary
 ${URL}    https://the-internet.herokuapp.com/javascript_alerts
 
 *** Test Cases ***
-Click for JS Alert    Open Browser    browser=headlesschrome    options=add_argument("--disable-extensions");add_argument("--headless");add_argument("--disable-gpu");add_argument("--no-sandbox")
+Click for JS Alert
+    Open Browser    browser=headlesschrome    options=add_argument("--disable-extensions");add_argument("--headless");add_argument("--disable-gpu");add_argument("--no-sandbox")
     Maximize Browser Window
     Go To    url=${URL}
     Wait Until Element Is Visible    locator=tag:body
@@ -17,7 +18,8 @@ Click for JS Alert    Open Browser    browser=headlesschrome    options=add_argu
     Wait Until Element Contains    locator=id:result    text=You successfully clicked an alert
     Close Browser
 
-Click for JS Confirm    Open Browser    browser=headlesschrome    options=add_argument("--disable-extensions");add_argument("--headless");add_argument("--disable-gpu");add_argument("--no-sandbox")
+Click for JS Confirm
+    Open Browser    browser=headlesschrome    options=add_argument("--disable-extensions");add_argument("--headless");add_argument("--disable-gpu");add_argument("--no-sandbox")
     Maximize Browser Window
     Go To    url=${URL}
     Wait Until Element Is Visible    locator=tag:body
@@ -26,4 +28,3 @@ Click for JS Confirm    Open Browser    browser=headlesschrome    options=add_ar
     Handle Alert    action=ACCEPT
     Wait Until Element Contains    locator=id:result    text=You clicked: Ok
     Close Browser
-
