@@ -29,6 +29,3 @@ Click for JS Confirm
     Wait Until Element Contains    locator=id:result    text=You clicked: Ok
     Close Browser
 
-Google
-    Open Browser    browser=firefox
-
