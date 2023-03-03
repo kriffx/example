@@ -12,7 +12,7 @@ Click for JS Alert
     Maximize Browser Window
     Go To    url=${URL}
     Wait Until Element Is Visible    locator=tag:body
-    Title Should Be    title=${page_title}
+    Title Should Be    title=The Internet
     Click Button    locator=xpath://*[@id="content"]/div/ul/li[1]/button
     Handle Alert    action=ACCEPT
     Wait Until Element Contains    locator=id:result    text=You successfully clicked an alert
@@ -23,8 +23,9 @@ Click for JS Confirm
     Maximize Browser Window
     Go To    url=${URL}
     Wait Until Element Is Visible    locator=tag:body
-    Title Should Be    title=${PAGE_TITLE}
+    Title Should Be    title=The Internet
     Click Button    locator=xpath://*[@id="content"]/div/ul/li[2]/button
     Handle Alert    action=ACCEPT
     Wait Until Element Contains    locator=id:result    text=You clicked: Ok
     Close Browser
+
