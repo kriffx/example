@@ -20,10 +20,10 @@ jobs:
         docker run --name docker-robotframework -d -v $(pwd)/tests:/tests/ -ti docker-robotframework
     - name: Run the robot command
       run: |
-        docker exec docker-robotframework robot --listener listeners/KitsuListener.py -d reports tests/
+        docker exec docker-robotframework robot --listener KitsuListener.py -d reports tests/
     - name: Reports
       uses: actions/upload-artifact@v1
       if: always()
       with:
         name: reports
-        path: reports
+        path: ./
