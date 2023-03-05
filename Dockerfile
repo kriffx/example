@@ -83,11 +83,6 @@ ENV CHROMEDRIVER_EXTRA_ARGS ''
 
 EXPOSE 4444
 
-#Set python 3.6 to default python version and io-encoding
-RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.6 1 \
-    && update-alternatives  --set python /usr/bin/python3.6 \
-    && export PYTHONIOENCODING="utf-8"
-
 # Install Robot Framework libraries
 #(pypi setup for jsonlibrary is broken and it needs separate installation from master)
 COPY requirements.txt /tmp/
