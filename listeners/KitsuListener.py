@@ -2,6 +2,7 @@ import base64, json, platform
 from os.path import join
 from bs4 import BeautifulSoup
 from robot.libraries.BuiltIn import BuiltIn
+from ScreenCapLibrary import ScreenCapLibrary
 
 class KitsuListener:
     ROBOT_LISTENER_API_VERSION = 2
@@ -12,6 +13,7 @@ class KitsuListener:
 
     def start_suite(self, name, attrs):
         BuiltIn().set_log_level("TRACE")
+        BuiltIn().import_library("ScreenCapLibrary")
         self.report.append({
             "name": name,
             "doc": attrs["doc"],
@@ -32,6 +34,10 @@ class KitsuListener:
         BuiltIn().set_log_level("NONE")
 
     def start_test(self, name, attrs):
+        id = BuiltIn().get_variable_value("${TEST_NAME}")
+        lib = BuiltIn().get_library_instance("ScreenCapLibrary")
+        lib.start_video_recording(alias=id, fps=10, embed=False)
+
         self.report[self.suite_index]["scenarios"].append({
             "name": name,
             "doc": attrs["doc"],
@@ -46,6 +52,14 @@ class KitsuListener:
         })
 
     def end_test(self, name, attrs):
+        id = BuiltIn().get_variable_value("${TEST_NAME}")
+        lib = BuiltIn().get_library_instance("ScreenCapLibrary")
+        output_video_file = lib.stop_video_recording(alias=id)
+        
+        with open(output_video_file, "rb") as video_file:
+            b64_string = base64.b64encode(video_file.read())
+            self.report[self.suite_index]["scenarios"][self.test_index]["video"] = "{}{}".format("data:video/webm;base64,", b64_string.decode("utf-8"))
+
         self.report[self.suite_index]["scenarios"][self.test_index]["status"] = attrs["status"]
         self.report[self.suite_index]["scenarios"][self.test_index]["end_time"] = attrs["endtime"]
         self.report[self.suite_index]["scenarios"][self.test_index]["elapsed_time"] = attrs["elapsedtime"]
