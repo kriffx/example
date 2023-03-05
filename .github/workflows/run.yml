@@ -20,7 +20,7 @@ jobs:
     - name: Run Test
       run: |
         docker run --rm -v $(pwd)/tests:/tests/ -ti $IMAGE_NAME
-    - name: Test report
+    - name: Reports
       uses: actions/upload-artifact@v1
       if: always()
       with:

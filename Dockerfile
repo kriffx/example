@@ -20,14 +20,8 @@ RUN apt-get -yqq update \
     && apt-get install -y software-properties-common \
 
 #install pip3 and python3 + libraries
-    && add-apt-repository ppa:jonathonf/python-3.6 \
-    && apt-get -yqq update \
-    && apt-get install -y build-essential python3.6 python3.6-dev python3-pip python3.6-venv \
-    && python3.6 -m pip install pip --upgrade \
-    && pip install --upgrade urllib3 \
-    && pip install requests \
-    && apt-get upgrade -yqq \
-    && apt-get install -y \
+    && apt-get install -y python3 \
+    && apt-get install -y python3-pip \
 
 #install basic programs and correct time zone:
     apt-utils \
