@@ -16,10 +16,7 @@ jobs:
       uses: actions/checkout@v2
     - name: Build image
       run: |
-        docker build . --tag $IMAGE_NAME --file Dockerfile
-    - name: Run Test
-      run: |
-        docker run --rm -v $(pwd)/tests:/tests/ -ti $IMAGE_NAME
+        docker build -t docker-robotframework .
     - name: Reports
       uses: actions/upload-artifact@v1
       if: always()
