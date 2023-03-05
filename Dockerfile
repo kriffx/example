@@ -1,35 +1,105 @@
-FROM python:3.11 as builder
+FROM ubuntu:22.10
 
-MAINTAINER "Cleverson Sampaio" <clesampaio@ext.worten.pt>
+LABEL description="Docker image for the Robot Framework"
+LABEL usage=" "
 
-RUN apt update -y
+# Set timezone to America/Sao_Paulo and install dependencies
+#   * git & curl & wget
+#   * python3
+#   * xvfb
+#   * chrome
+#   * chrome selenium driver
+#   * hi-res fonts
 
-WORKDIR app
-COPY . /app/
+ENV DEBIAN_FRONTEND noninteractive
 
-RUN apt install -y wget unzip
+# Create user
+RUN useradd automation --shell /bin/bash --create-home
 
-ARG DEBIAN_FRONTEND=noninteractive
-RUN apt-get install -y tzdata
+RUN apt-get -yqq update \
+    && apt-get install -y software-properties-common \
 
-# install google chrome
-RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
-RUN sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list'
-RUN apt-get -y update
-RUN apt-get install -y google-chrome-stable
+#install pip3 and python3 + libraries
+    && add-apt-repository ppa:jonathonf/python-3.6 \
+    && apt-get -yqq update \
+    && apt-get install -y build-essential python3.6 python3.6-dev python3-pip python3.6-venv \
+    && python3.6 -m pip install pip --upgrade \
+    && pip install --upgrade urllib3 \
+    && pip install requests \
+    && apt-get upgrade -yqq \
+    && apt-get install -y \
 
-# install chromedriver
-RUN apt-get install -yqq unzip
-RUN wget -O /tmp/chromedriver.zip http://chromedriver.storage.googleapis.com/`curl -sS chromedriver.storage.googleapis.com/LATEST_RELEASE`/chromedriver_linux64.zip
-RUN unzip /tmp/chromedriver.zip chromedriver -d /usr/local/bin/
+#install basic programs and correct time zone:
+    apt-utils \
+    sudo \
+    tzdata \
+    xvfb \
+    git \
+    unzip \
+    wget \
+    curl \
+    dbus-x11 \
+    xfonts-100dpi xfonts-75dpi xfonts-scalable xfonts-cyrillic \
+    --no-install-recommends \
+    && apt-get clean autoclean \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
+    && echo "America/Sao_Paulo" > /etc/timezone \
+    && rm /etc/localtime \
+    && dpkg-reconfigure -f noninteractive tzdata \
 
-#install python
-RUN apt-get install -y python3
-RUN apt-get install -y python3-pip
+#install google chrome latest version
+    && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
+    && echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list \
+    && apt-get -yqq update \
+    && apt-get -yqq install google-chrome-stable \
+    && rm -rf /var/lib/apt/lists/* \
+    && chmod a+x /usr/bin/google-chrome \
 
-RUN pip install -r requirements.txt
+#install chromedriver based on the chrome-version (compatible chromedriver and chrome has same main version number)
+    && CHROME_VERSION=$(google-chrome --version) \
+    && MAIN_VERSION=${CHROME_VERSION#Google Chrome } && MAIN_VERSION=${MAIN_VERSION%%.*} \
+    && echo "main version: $MAIN_VERSION" \
+    && CHROMEDRIVER_VERSION=`curl -sS chromedriver.storage.googleapis.com/LATEST_RELEASE_$MAIN_VERSION` \
+    && echo "**********************************************************" \
+    && echo "chrome version: $CHROME_VERSION" \
+    && echo "chromedriver version: $CHROMEDRIVER_VERSION" \
+    && echo "**********************************************************" \
+    && mkdir -p /opt/chromedriver-$CHROMEDRIVER_VERSION \
+    && echo "directory for chromedriver set: /opt/chromedriver-$CHROMEDRIVER_VERSION" \
+    && curl -sS -o /tmp/chromedriver_linux64.zip http://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip \
+    && unzip -qq /tmp/chromedriver_linux64.zip -d /opt/chromedriver-$CHROMEDRIVER_VERSION  \
+    && rm /tmp/chromedriver_linux64.zip \
+    && echo "chromedriver copied to directory" \
+    && chmod +x /opt/chromedriver-$CHROMEDRIVER_VERSION/chromedriver \
+    && echo "original file: /opt/chromedriver-$CHROMEDRIVER_VERSION/chromedriver" \
+    && echo "linked to file: /usr/local/bin/chromedriver" \
+    && ln -fs /opt/chromedriver-$CHROMEDRIVER_VERSION/chromedriver /usr/local/bin/chromedriver
 
-# set display port to avoid crash
-ENV DISPLAY=:99
+# Fix hanging Chrome, see https://github.com/SeleniumHQ/docker-selenium/issues/87
+ENV DBUS_SESSION_BUS_ADDRESS /dev/null
 
-CMD ["robot --listener listeners/KitsuListener.py -d results tests/"]
+# Configure monitor
+ENV DISPLAY :20.0
+ENV SCREEN_GEOMETRY "1366x768x24"
+# Configure chromedriver
+ENV CHROMEDRIVER_PORT 4444
+ENV CHROMEDRIVER_WHITELISTED_IPS "127.0.0.1"
+ENV CHROMEDRIVER_URL_BASE ''
+ENV CHROMEDRIVER_EXTRA_ARGS ''
+
+EXPOSE 4444
+
+#Set python 3.6 to default python version and io-encoding
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.6 1 \
+    && update-alternatives  --set python /usr/bin/python3.6 \
+    && export PYTHONIOENCODING="utf-8"
+
+# Install Robot Framework libraries
+#(pypi setup for jsonlibrary is broken and it needs separate installation from master)
+COPY requirements.txt /tmp/
+RUN pip3 install -Ur /tmp/requirements.txt && rm /tmp/requirements.txt
+
+ADD run.sh /usr/local/bin/run.sh
+RUN chmod +x /usr/local/bin/run.sh
+
+CMD ["run.sh"]

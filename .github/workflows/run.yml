@@ -19,7 +19,7 @@ jobs:
         docker build . --tag $IMAGE_NAME --file Dockerfile
     - name: Run Test
       run: |
-        docker run --shm-size=1g -v `pwd`/test:/opt/robotframework/tests:Z -e TZ="America/Sao_Paulo" $IMAGE_NAME
+        docker run --rm -v $(pwd)/tests:/tests/ -ti $IMAGE_NAME
     - name: Test report
       uses: actions/upload-artifact@v1
       if: always()
