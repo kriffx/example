@@ -5,18 +5,21 @@ on:
   push:
     branches: [ main ]
 
+env:
+  IMAGE_NAME: docker-robot-framework
+
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: Install PIP
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Build image
       run: |
-        pip install -r requirements.txt
-    - name: Run tests
-      uses: joonvena/robotframework-docker-action@v1.1
-      with:
-        robot_tests_dir: tests
+        docker build . --tag $IMAGE_NAME --file Dockerfile
+    - name: Run Test
+      run: |
+        docker run --shm-size=1g -v `pwd`/test:/opt/robotframework/tests:Z -e TZ="America/Sao_Paulo" $IMAGE_NAME
     - name: Test report
       uses: actions/upload-artifact@v1
       if: always()
