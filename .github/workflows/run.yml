@@ -11,15 +11,19 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-    - name: Build image
+    - name: How To Build Image
       run: |
         docker build -t docker-robotframework .
-    - name: Run image
+    - name: Run The Image
       run: |
-        docker run --rm -v $(pwd)/tests:/tests/ -ti kriffx/example
+        docker images
+        docker run --name docker-robotframework -d -v $(pwd)/tests:/tests/ -ti docker-robotframework
+    - name: Run the robot command
+      run: |
+        docker exec docker-robotframework robot --listener listeners/KitsuListener.py -d reports tests/
     - name: Reports
       uses: actions/upload-artifact@v1
       if: always()
       with:
         name: reports
-        path: ./
+        path: reports
