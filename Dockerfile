@@ -31,3 +31,5 @@ RUN pip install -r requirements.txt
 
 # set display port to avoid crash
 ENV DISPLAY=:99
+
+CMD ["robot --listener listeners/KitsuListener.py -d results tests/"]
