@@ -20,8 +20,8 @@ RUN apt-get -yqq update \
     && apt-get install -y software-properties-common \
 
 #install pip3 and python3 + libraries
-    && apt-get install -y python3 \
-    && apt-get install -y python3-pip \
+    && apt-get install -y python3 python3-pip python3-venv \
+    && apt-get install -y python3-gi gobject-introspection gir1.2-gtk-3.0 \
 
 #install basic programs and correct time zone:
     apt-utils \
