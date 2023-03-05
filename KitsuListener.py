@@ -4,12 +4,17 @@ from bs4 import BeautifulSoup
 from robot.libraries.BuiltIn import BuiltIn
 from ScreenCapLibrary import ScreenCapLibrary
 
-class KitsuListener:
+class KitsuListener(object):
     ROBOT_LISTENER_API_VERSION = 2
+    ROBOT_LIBRARY_SCOPE = "GLOBAL"
+
     report = []
     suite_index = 0
     test_index = 0
     step_index = 0
+
+    def __init__(self):
+        self.ROBOT_LIBRARY_LISTENER = self
 
     def start_suite(self, name, attrs):
         BuiltIn().set_log_level("TRACE")

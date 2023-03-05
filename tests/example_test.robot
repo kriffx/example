@@ -2,13 +2,14 @@
 Documentation    Test scenarios for example.
 
 Library    SeleniumLibrary
+Library    ../KitsuListener.py
 
 *** Variables ***
 ${URL}    https://the-internet.herokuapp.com/javascript_alerts
 
 *** Test Cases ***
 Click for JS Alert
-    Open Browser    browser=headlesschrome    options=add_argument("--disable-extensions");add_argument("--headless");add_argument("--disable-gpu");add_argument("--no-sandbox")
+    Open Browser    browser=chrome    options=add_argument("--disable-extensions");add_argument("--disable-gpu");add_argument("--no-sandbox")
     Maximize Browser Window
     Go To    url=${URL}
     Wait Until Element Is Visible    locator=tag:body
@@ -19,7 +20,7 @@ Click for JS Alert
     Close Browser
 
 Click for JS Confirm
-    Open Browser    browser=headlesschrome    options=add_argument("--disable-extensions");add_argument("--headless");add_argument("--disable-gpu");add_argument("--no-sandbox")
+    Open Browser    browser=chrome    options=add_argument("--disable-extensions");add_argument("--disable-gpu");add_argument("--no-sandbox")
     Maximize Browser Window
     Go To    url=${URL}
     Wait Until Element Is Visible    locator=tag:body
