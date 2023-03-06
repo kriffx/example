@@ -1,8 +1,6 @@
 *** Settings ***
 Documentation    Test scenarios for example.
 
-Library    SeleniumLibrary
-Library    KitsuListener.py
 
 *** Variables ***
 ${URL}    https://the-internet.herokuapp.com/javascript_alerts
@@ -13,7 +11,7 @@ Click for JS Alert
     Maximize Browser Window
     Go To    url=${URL}
     Wait Until Element Is Visible    locator=tag:body
-    Title Should Be    title=The Internet
+    Title Should Be    title=The Internet 2
     Click Button    locator=xpath://*[@id="content"]/div/ul/li[1]/button
     Handle Alert    action=ACCEPT
     Wait Until Element Contains    locator=id:result    text=You successfully clicked an alert
