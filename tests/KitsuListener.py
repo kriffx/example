@@ -1,5 +1,7 @@
-import base64, json, platform
+import base64, requests, json, platform
+from os import path, getenv
 from os.path import join
+from dotenv import load_dotenv
 from bs4 import BeautifulSoup
 from robot.libraries.BuiltIn import BuiltIn
 from ScreenCapLibrary import ScreenCapLibrary
@@ -120,9 +122,17 @@ class KitsuListener(object):
         self.suite_index = 0
         self.test_index = 0
 
+        switch = {
+            "prod": "production",
+            "dev": "development"
+        }
+
+        environment = switch.get(BuiltIn().get_variable_value("${env}", "local"), "local")
+        load_dotenv(path.join("configs", "{}.env".format(environment)))
+
         with open("info.json", "w") as write_info_file:
             json.dump({
-                "env": "local",
+                "env": environment,
                 "username": platform.node(),
                 "os_name": platform.system(),
                 "python_version": platform.python_version()
@@ -130,3 +140,20 @@ class KitsuListener(object):
 
         with open("report.json", "w") as write_report_file:
             json.dump(self.report, write_report_file, indent=4)
+        
+        kitsu_url = getenv("KITSU_URL")
+        kitsu_app_id = getenv("KITSU_APP_ID")
+        kitsu_token = getenv("KITSU_TOKEN")
+
+        if kitsu_url and kitsu_app_id and kitsu_token is not None:
+            response = requests.post("{}/{}".format(kitsu_url, kitsu_app_id),
+                files={
+                    "report": open("report.json", "rb"),
+                    "info": open("info.json", "rb")
+                },
+                headers={
+                    "Authorization": "{} {}".format("Bearer", kitsu_token),
+                }
+            )
+
+            print(response)

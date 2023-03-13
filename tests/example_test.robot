@@ -2,6 +2,7 @@
 Documentation    Test scenarios for example.
 
 Library    SeleniumLibrary
+Library    KitsuListener.py
 
 *** Variables ***
 ${URL}    https://the-internet.herokuapp.com/javascript_alerts

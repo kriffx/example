@@ -2,3 +2,5 @@ robotframework == 6.0.2
 robotframework-seleniumlibrary == 6.0.0
 robotframework-screencaplibrary == 1.6.0
 beautifulsoup4 == 4.11.1
+python-dotenv == 0.21.0
+requests == 2.28.2
